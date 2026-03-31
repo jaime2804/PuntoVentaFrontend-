@@ -1,5 +1,11 @@
 # Point of Sale - Web Frontend
 
+## About
+
+Point of sale system developed for a local supermarket in Upala, Costa Rica. Built as a real-world project with full business module coverage including sales, inventory, payroll and cash register management.
+
+## Overview
+
 ASP.NET MVC web application that serves as the frontend for the Point of Sale system. Consumes the PuntoVentaAPI REST API using HttpClient, with session-based authentication backed by JWT tokens.
 
 ## Tech Stack
