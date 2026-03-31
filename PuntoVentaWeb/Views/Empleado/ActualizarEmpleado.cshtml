@@ -1,0 +1,125 @@
+﻿@model PuntoVentaWeb.Entities.EmpleadoEnt
+
+@{
+    ViewData["Title"] = "Actualizar Empleado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalActualizarEmpleadoLabel">Actualizar Empleado</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formActualizarEmpleado" asp-action="ActualizarEmpleado" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Cedula" class="control-label"></label>
+                    <input asp-for="Cedula" class="form-control" readonly />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Apellido" class="control-label"></label>
+                    <input asp-for="Apellido" class="form-control" />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="FechaIngreso" class="control-label"></label>
+                    <input asp-for="FechaIngreso" type="date" class="form-control" />
+                    <span asp-validation-for="FechaIngreso" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HorasTrabajadas" class="control-label"></label>
+                    <input asp-for="HorasTrabajadas" type="number" class="form-control" min="0" step="1" />
+                    <span asp-validation-for="HorasTrabajadas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HorasRebajadas" class="control-label"></label>
+                    <input asp-for="HorasRebajadas" type="number" class="form-control" min="0" step="1" />
+                    <span asp-validation-for="HorasRebajadas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ValorPorHora" class="control-label"></label>
+                    <input asp-for="ValorPorHora" type="number" class="form-control" min="0" step="0.01" />
+                    <span asp-validation-for="ValorPorHora" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="SalarioAjustado" class="control-label"></label>
+                    <input asp-for="SalarioAjustado" class="form-control" readonly />
+                    <span asp-validation-for="SalarioAjustado" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarEmpleados" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Actualizar" class="btn btn-primary" id="btnActualizarEmpleado" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        document.getElementById('btnActualizarEmpleado').addEventListener('click', function (e) {
+            e.preventDefault(); // Evita el envío inmediato del formulario
+
+            const nombre = document.querySelector('[name="Nombre"]').value.trim();
+            const apellido = document.querySelector('[name="Apellido"]').value.trim();
+
+            if (nombre === '' || apellido === '') {
+                // Mostrar alerta de error si los campos obligatorios están vacíos
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campos requeridos',
+                    text: 'Debe completar los campos de nombre y apellido.',
+                });
+            } else {
+                // Mostrar mensaje de éxito y enviar el formulario
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Actualización exitosa',
+                    text: 'El empleado se ha actualizado correctamente.',
+                }).then(() => {
+                    document.getElementById('formActualizarEmpleado').submit(); // Enviar el formulario
+                });
+            }
+        });
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.value < 0) {
+                    alert('No se permiten números negativos.');
+                    input.value = ''; // Borra el valor si es negativo.
+                }
+            });
+
+            // Evitar el uso del símbolo '-' directamente en la entrada.
+            input.addEventListener('keydown', (e) => {
+                if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                    e.preventDefault(); // Bloquea el símbolo.
+                }
+            });
+        });
+
+    </script>
+}

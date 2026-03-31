@@ -1,0 +1,171 @@
+﻿@model PuntoVentaWeb.Entities.EmpleadoEnt
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Modal para Registrar Empleado -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalRegistrarEmpleadoLabel">Registrar Empleado</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formRegistrarEmpleado" asp-action="RegistrarEmpleado" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Cedula" class="control-label"></label>
+                    <input asp-for="Cedula" class="form-control" />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Apellido" class="control-label"></label>
+                    <input asp-for="Apellido" class="form-control" />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="FechaIngreso" class="control-label"></label>
+                    <input asp-for="FechaIngreso" type="date" class="form-control" />
+                    <span asp-validation-for="FechaIngreso" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HorasTrabajadas" class="control-label"></label>
+                    <input asp-for="HorasTrabajadas" type="number" class="form-control" min="0" step="1" />
+                    <span asp-validation-for="HorasTrabajadas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HorasRebajadas" class="control-label"></label>
+                    <input asp-for="HorasRebajadas" type="number" class="form-control" min="0" step="1" />
+                    <span asp-validation-for="HorasRebajadas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ValorPorHora" class="control-label"></label>
+                    <input asp-for="ValorPorHora" type="number" class="form-control" min="0" step="0.01" />
+                    <span asp-validation-for="ValorPorHora" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarEmpleados" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Registrar" class="btn btn-primary" id="btnRegistrarEmpleado" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnRegistrar = document.getElementById('btnRegistrarEmpleado');
+            const formRegistrar = document.getElementById('formRegistrarEmpleado');
+
+            // Evento al hacer clic en el botón de registro
+            btnRegistrar.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita el envío inmediato del formulario
+
+                const cedula = document.querySelector('[name="Cedula"]').value.trim();
+                const nombre = document.querySelector('[name="Nombre"]').value.trim();
+                const apellido = document.querySelector('[name="Apellido"]').value.trim();
+                const horasTrabajadas = parseFloat(document.querySelector('[name="HorasTrabajadas"]').value);
+                const horasRebajadas = parseFloat(document.querySelector('[name="HorasRebajadas"]').value);
+                const valorPorHora = parseFloat(document.querySelector('[name="ValorPorHora"]').value);
+
+                // Validación de campos requeridos
+                if (!cedula || !nombre || !apellido) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Campos requeridos',
+                        text: 'Por favor, complete los campos de cédula, nombre y apellido.',
+                    });
+                    return;
+                }
+
+                // Validación de horas trabajadas y rebajadas
+                if (isNaN(horasTrabajadas) || horasTrabajadas < 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Valor inválido',
+                        text: 'Las horas trabajadas deben ser un valor positivo.',
+                    });
+                    return;
+                }
+
+                if (isNaN(horasRebajadas) || horasRebajadas < 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Valor inválido',
+                        text: 'Las horas rebajadas deben ser un valor positivo.',
+                    });
+                    return;
+                }
+
+                // Validación del valor por hora
+                if (isNaN(valorPorHora) || valorPorHora <= 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Valor inválido',
+                        text: 'El valor por hora debe ser mayor a 0.',
+                    });
+                    return;
+                }
+
+                // Si todo es válido, se procede a la petición AJAX
+                $.ajax({
+                    url: formRegistrar.action, // Usa la acción definida en el formulario
+                    type: 'POST',
+                    data: $(formRegistrar).serialize(), // Serializa los datos del formulario
+                    dataType: 'json', // Espera respuesta JSON
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: response.message,
+                                confirmButtonText: 'Aceptar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/Empleado/ConsultarEmpleados'; // Redirige si todo va bien
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error del servidor',
+                            text: `Hubo un problema: ${textStatus} - ${errorThrown}`,
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+}

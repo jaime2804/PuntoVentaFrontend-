@@ -1,0 +1,150 @@
+﻿@model PuntoVentaWeb.Entities.ProductoEnt
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Modal para Registrar Producto -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalRegistrarProductoLabel">Registrar Producto</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formProducto" asp-action="RegistrarProducto">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="IdProducto" class="control-label"></label>
+                    <input asp-for="IdProducto" class="form-control" inputmode="numeric" pattern="[0-9]*" />
+                    <span asp-validation-for="IdProducto" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Precio" class="control-label"></label>
+                    <input asp-for="Precio" class="form-control" inputmode="numeric" pattern="[0-9]*" step="0.01" />
+                    <span asp-validation-for="Precio" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Stock" class="control-label"></label>
+                    <input asp-for="Stock" class="form-control" inputmode="numeric" pattern="[0-9]*" min="0" max="200" step="1" />
+                    <span asp-validation-for="Stock" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="IdCategoria" class="control-label"></label>
+                    <select asp-for="IdCategoria" class="form-control" id="IdCategoria">
+                        <option value="">Seleccione una categoría</option>
+                    </select>
+                    <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarProductos" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Registrar" class="btn btn-primary" id="btnRegistrarProducto" />
+                </div>
+            </form>
+
+            <script>
+                let categoriasValidas = [];
+
+                window.onload = async function () {
+                    try {
+                        const response = await fetch('https://localhost:7007/api/Categoria/ConsultarCategorias');
+                        const data = await response.json();
+
+                        if (data.Codigo === "1" && data.Datos) {
+                            categoriasValidas = data.Datos.map(c => c.Id.toString());
+
+                            const categoriaSelect = document.getElementById('IdCategoria');
+                            data.Datos.forEach(categoria => {
+                                const option = document.createElement('option');
+                                option.value = categoria.Id;
+                                option.textContent = categoria.Nombre;
+                                categoriaSelect.appendChild(option);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Sin categorías',
+                                text: 'No hay categorías registradas o hubo un problema.',
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudieron cargar las categorías.',
+                        });
+                    }
+                };
+
+                const numericFields = ['IdProducto', 'Precio', 'Stock'];
+
+                numericFields.forEach(field => {
+                    document.querySelector(`[name="${field}"]`).addEventListener('input', function (e) {
+                        this.value = this.value.replace(/[^0-9.]/g, '');
+                    });
+                });
+
+                document.getElementById('formProducto').addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const idProducto = document.querySelector('[name="IdProducto"]').value.trim();
+                    const idCategoria = document.getElementById('IdCategoria').value.trim();
+
+                    if (!categoriasValidas.includes(idCategoria)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Categoría no válida',
+                            text: 'La categoría no existe. No se puede registrar el producto.',
+                        });
+                        return;
+                    }
+
+                    $.ajax({
+                        url: this.action, // Usa la acción definida en el formulario
+                        type: 'POST',
+                        data: $(this).serialize(), // Serializa los datos del formulario
+                        dataType: 'json', // Espera respuesta JSON
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Éxito!',
+                                    text: response.message,
+                                    confirmButtonText: 'Aceptar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = '/Producto/ConsultarProductos'; // Redirige si todo va bien
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message,
+                                    confirmButtonText: 'Aceptar'
+                                });
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error del servidor',
+                                text: `Hubo un problema: ${textStatus} - ${errorThrown}`,
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,126 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.CajaEnt>
+
+@{
+	ViewData["Title"] = "Obtener Todos los Arqueos";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-white">Cierre de Caja</h6>
+			
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-sm-3">
+					<p>
+						<a class="btn btn-all" href="@Url.Action("CrearCaja", "Arqueo")">
+							<i class="fa fa-plus"></i> Abrir Caja
+						</a>
+					</p>
+					<a class="btn btn-primary" href="@Url.Action("CalcularCierreSemanal", "Arqueo")">
+						<i class="fas fa-calendar-week"></i> Cálculo del Cierre de Caja Semanal
+					</a>
+				</div>
+			</div>
+			<hr />
+
+			<div class="row">
+				<div class="col-sm-12">
+					<table class="table table-bordered">
+						<thead class="thead">
+							<tr class="table-head">
+								<th>
+									@Html.DisplayNameFor(model => model.First().IdCaja)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.First().MontoInicial)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.First().FechaCreacion)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.First().MontoActual)
+								</th>
+								<th>
+									@Html.DisplayNameFor(model => model.First().Estado)
+								</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr class="table-row">
+									<td>@Html.DisplayFor(modelItem => item.IdCaja)</td>
+									<td>@Html.DisplayFor(modelItem => item.MontoInicial)</td>
+									<td>@Html.DisplayFor(modelItem => item.FechaCreacion)</td>
+									<td>@Html.DisplayFor(modelItem => item.MontoActual)</td>
+									<td>@Html.DisplayFor(modelItem => item.Estado)</td>
+
+									<td>
+										@if (item.Estado != "Cerrada")
+										{
+											<a class="btn btn-success btn-sm" href="@Url.Action("RegistrarMovimiento", "Arqueo", new { IdCaja = item.IdCaja }) " title= "Registrar Movimiento">
+
+												<i class="fa-solid fa-plus-minus"></i>
+											</a>
+											<a class="btn btn-success btn-sm" href="@Url.Action("RegistrarArqueo", "Arqueo", new { IdCaja = item.IdCaja }) " title= "Registrar Arqueo">
+
+												<i class="fa-solid fa-money-bill-transfer"></i>
+											</a>
+
+											<a class="btn btn-success btn-sm" href="@Url.Action("ConsultarUnMovimiento", "Arqueo", new { IdCaja = item.IdCaja })" title="Consultar Movimientos">
+												<i class="fas fa-eye"></i>
+											</a>
+										}
+										<button type="button" class="btn btn-danger btn-sm passingID" data-toggle="modal" data-target="#exampleModal"
+												data-id="@item.IdCaja" data-name="@item.IdCaja" title="Eliminar">
+											<i class="fa fa-trash"></i>
+										</button>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				@using (Html.BeginForm("EliminarCaja", "Arqueo", FormMethod.Post))
+				{
+					<div class="modal-body">
+						<input type="hidden" id="IdCaja" name="IdCaja" value="">
+						<p id="Question" style="font-weight: bold;"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+						<button type="submit" class="btn btn-danger">Procesar</button>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+
+	@section Scripts {
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+		<script>
+			$(".passingID").click(function () {
+				$("#IdCaja").val($(this).data('id'));
+				$("#Question").text("¿Desea eliminar el arqueo de caja con ID: " + $(this).data('name') + "?");
+			});
+		</script>
+	}

@@ -1,0 +1,160 @@
+﻿@model PuntoVentaWeb.Entities.ProveedorEnt
+
+@{
+    ViewData["Title"] = "Actualizar Proveedor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalActualizarProveedorLabel">Actualizar Proveedor</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formActualizarProveedor" asp-action="ActualizarProveedor">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="IdProveedor" class="control-label"></label>
+                    <input asp-for="IdProveedor" class="form-control" readonly />
+                    <span asp-validation-for="IdProveedor" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="NumeroDocumento" class="control-label"></label>
+                    <input asp-for="NumeroDocumento" class="form-control"
+                           inputmode="numeric" pattern="[0-9]*" />
+                    <span asp-validation-for="NumeroDocumento" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Correo" class="control-label"></label>
+                    <input asp-for="Correo" class="form-control" type="email" required />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Direccion" class="control-label"></label>
+                    <input asp-for="Direccion" class="form-control" />
+                    <span asp-validation-for="Direccion" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Telefono" class="control-label"></label>
+                    <input asp-for="Telefono" class="form-control"
+                           inputmode="numeric" pattern="[0-9]*" />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Impuesto" class="control-label"></label>
+                    <input asp-for="Impuesto" class="form-control"
+                           inputmode="numeric" pattern="[0-9]*" step="0.01" min="0" max="100" />
+                    <span asp-validation-for="Impuesto" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarProveedores" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Actualizar" class="btn btn-primary" id="btnActualizarProveedor" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnActualizar = document.getElementById('btnActualizarProveedor');
+            const formActualizar = document.getElementById('formActualizarProveedor');
+
+            const numericFields = ['NumeroDocumento', 'Telefono', 'Impuesto'];
+            numericFields.forEach(field => {
+                document.querySelector(`[name="${field}"]`).addEventListener('input', function () {
+                    this.value = this.value.replace(/[^0-9.]/g, '');
+                });
+            });
+
+            btnActualizar.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const numeroDocumento = document.querySelector('[name="NumeroDocumento"]').value.trim();
+                const nombre = document.querySelector('[name="Nombre"]').value.trim();
+                const correo = document.querySelector('[name="Correo"]').value.trim();
+                const impuesto = parseFloat(document.querySelector('[name="Impuesto"]').value);
+
+                if (!numeroDocumento || !nombre || !correo) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Campos requeridos',
+                        text: 'Por favor, complete los campos de documento, nombre y correo.',
+                    });
+                    return;
+                }
+
+                if (!document.querySelector('[name="Correo"]').checkValidity()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Correo inválido',
+                        text: 'Por favor, ingrese un correo válido.',
+                    });
+                    return;
+                }
+
+                if (isNaN(impuesto) || impuesto < 0 || impuesto > 100) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Valor de impuesto inválido',
+                        text: 'El impuesto debe estar entre 0 y 100.',
+                    });
+                    return;
+                }
+
+                $.ajax({
+                    url: formActualizar.action,
+                    type: 'POST',
+                    data: $(formActualizar).serialize(),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'El proveedor se ha actualizado correctamente.',
+                            }).then(() => {
+                                window.location.href = '/Proveedor/ConsultarProveedores';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error del servidor',
+                            text: `Hubo un problema: ${textStatus} - ${errorThrown}`,
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

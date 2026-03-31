@@ -1,0 +1,57 @@
+﻿@model PuntoVentaWeb.Entities.MovimientoEnt
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Modal para Registrar Movimiento -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalRegistrarMovimientoLabel">Registrar Movimiento</h5>
+        </div>
+        <div class="modal-body">
+            <form asp-action="RegistrarMovimiento">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="IdCaja" class="control-label"></label>
+                    <input asp-for="IdCaja" class="form-control" />
+                    <span asp-validation-for="IdCaja" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="TipoMovimiento" class="control-label"></label>
+                    <select asp-for="TipoMovimiento" class="form-control">
+                        <option value="Salida">Salida</option>
+                        <option value="Deposito">Depósito</option>
+                    </select>
+                    <span asp-validation-for="TipoMovimiento" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Monto" class="control-label"></label>
+                    <input asp-for="Monto" class="form-control" />
+                    <span asp-validation-for="Monto" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Descripcion" class="control-label"></label>
+                    <input asp-for="Descripcion" class="form-control" />
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ObtenerTodosArqueos" class="btn btn-danger">Cancelar</a>
+                    <input type="submit" value="Registrar" class="btn btn-all" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

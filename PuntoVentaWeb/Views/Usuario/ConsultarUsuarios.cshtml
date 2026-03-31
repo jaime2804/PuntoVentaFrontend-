@@ -1,0 +1,112 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.UsuarioEnt>
+
+@{
+    ViewData["Title"] = "Consultar Usuarios";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Obtén el ID del usuario logueado desde la sesión
+    var usuarioLogueadoId = Context.Session.GetInt32("IdUsuario");
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 ">
+            <h6 class="m-0 font-weight-bold text-white">Lista de Usuarios</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <p>
+                        <a class="btn btn-all" href="@Url.Action("RegistrarUsuario", "Usuario")">
+                            <i class="fa fa-plus"></i> Nuevo Usuario
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <thead class="thead">
+                            <tr class="table-head">
+                                <th>@Html.DisplayNameFor(model => model.First().IdUsuario)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Identificacion)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Nombre)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Correo)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Estado)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Descripcion)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="table-row">
+                                    <td>@Html.DisplayFor(modelItem => item.IdUsuario)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Identificacion)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Correo)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                                    <td>
+                                        <a class="btn btn-success btn-sm" 
+                                           href="@Url.Action("ActualizarUsuario", "Usuario", new { IdUsuario = item.IdUsuario })" 
+                                           title="Editar">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+
+                                        @if (item.IdUsuario != usuarioLogueadoId)
+                                        {
+                                            <button type="button" 
+                                                    class="btn btn-danger btn-sm passingID" 
+                                                    data-toggle="modal" data-target="#exampleModal"
+                                                    data-id="@item.IdUsuario" data-name="@item.Nombre" 
+                                                    title="Eliminar">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @using (Html.BeginForm("EliminarUsuario", "Usuario", FormMethod.Post))
+                {
+                    <div class="modal-body">
+                        <input type="hidden" id="IdUsuario" name="IdUsuario" value="">
+                        <p id="Question" style="font-weight: bold;"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Procesar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(".passingID").click(function () {
+                $("#IdUsuario").val($(this).data('id'));
+                $("#Question").text("¿Desea eliminar el usuario: " + $(this).data('name') + "?");
+            });
+        </script>
+    }

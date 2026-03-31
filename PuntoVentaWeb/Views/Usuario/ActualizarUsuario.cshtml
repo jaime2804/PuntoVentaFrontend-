@@ -1,0 +1,127 @@
+﻿@model PuntoVentaWeb.Entities.UsuarioEnt
+
+@{
+    ViewData["Title"] = "Actualizar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalActualizarUsuarioLabel">Actualizar Usuario</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formActualizarUsuario" asp-action="ActualizarUsuario" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="IdUsuario" class="control-label"></label>
+                    <input asp-for="IdUsuario" class="form-control" readonly />
+                    <span asp-validation-for="IdUsuario" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Correo" class="control-label"></label>
+                    <input asp-for="Correo" class="form-control" type="email" required />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Identificacion" class="control-label"></label>
+                    <input asp-for="Identificacion" class="form-control" readonly />
+                    <span asp-validation-for="Identificacion" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="IdRol" class="control-label"></label>
+                    <select asp-for="IdRol" class="form-control">
+                        <option value="1">Administrador</option>
+                        <option value="2">Usuario</option>
+                    </select>
+                    <span asp-validation-for="IdRol" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Estado" class="control-label"></label>
+                    <select asp-for="Estado" class="form-control">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Contrasenna" class="control-label" hidden></label>
+                    <input asp-for="Contrasenna" class="form-control" hidden />
+                    <span asp-validation-for="Contrasenna" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarUsuarios" class="btn btn-secondary">Cancelar</a>
+                    <button type="button" class="btn btn-primary" id="btnActualizarUsuario">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnActualizar = document.getElementById('btnActualizarUsuario');
+            const formActualizar = document.getElementById('formActualizarUsuario');
+            const correoField = document.querySelector('[name="Correo"]');
+
+            btnActualizar.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita el envío inmediato del formulario
+
+                const nombre = document.querySelector('[name="Nombre"]').value.trim();
+                const correo = correoField.value.trim();
+                const identificacion = document.querySelector('[name="Identificacion"]').value.trim();
+                const contrasenna = document.querySelector('[name="Contrasenna"]').value.trim();
+
+                // Validación de campos requeridos
+                if (!nombre || !correo || !identificacion || !contrasenna) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Campos requeridos',
+                        text: 'Por favor, complete todos los campos obligatorios.',
+                    });
+                    return;
+                }
+
+                // Validación del formato del correo
+                if (!correoField.checkValidity()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Correo inválido',
+                        text: 'Por favor, ingrese un correo válido.',
+                    });
+                    return;
+                }
+
+                // Confirmación de actualización exitosa
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Usuario Actualizado',
+                    text: 'El usuario se ha actualizado correctamente.',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formActualizar.submit(); // Enviar el formulario
+                    }
+                });
+            });
+        });
+    </script>
+}

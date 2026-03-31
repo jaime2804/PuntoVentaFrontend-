@@ -1,0 +1,177 @@
+﻿@model PuntoVentaWeb.Entities.ArqueoEnt
+
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Modal para Registrar Arqueo -->
+<div class="modal-dialog modal-lg" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="modalRegistrarArqueoLabel">Registrar Arqueo</h5>
+		</div>
+		<div class="modal-body">
+			<form asp-action="RegistrarArqueo">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+				<div class="form-group">
+					<label asp-for="IdCaja" class="control-label"></label>
+					<input asp-for="IdCaja" class="form-control" />
+					<span asp-validation-for="IdCaja" class="text-danger"></span>
+				</div>
+
+				<div class="row">
+					<!-- Columna de Billetes -->
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="Billetes1000" class="control-label"></label>
+							<input asp-for="Billetes1000" class="form-control" />
+							<span asp-validation-for="Billetes1000" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Billetes2000" class="control-label"></label>
+							<input asp-for="Billetes2000" class="form-control" />
+							<span asp-validation-for="Billetes2000" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Billetes5000" class="control-label"></label>
+							<input asp-for="Billetes5000" class="form-control" />
+							<span asp-validation-for="Billetes5000" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Billetes10000" class="control-label"></label>
+							<input asp-for="Billetes10000" class="form-control" />
+							<span asp-validation-for="Billetes10000" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Billetes20000" class="control-label"></label>
+							<input asp-for="Billetes20000" class="form-control" />
+							<span asp-validation-for="Billetes20000" class="text-danger"></span>
+						</div>
+
+
+					</div>
+
+					  
+
+
+					<!-- Columna de Monedas -->
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="Monedas5" class="control-label"></label>
+							<input asp-for="Monedas5" class="form-control" />
+							<span asp-validation-for="Monedas5" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Monedas10" class="control-label"></label>
+							<input asp-for="Monedas10" class="form-control" />
+							<span asp-validation-for="Monedas10" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Monedas25" class="control-label"></label>
+							<input asp-for="Monedas25" class="form-control" />
+							<span asp-validation-for="Monedas25" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Monedas50" class="control-label"></label>
+							<input asp-for="Monedas50" class="form-control" />
+							<span asp-validation-for="Monedas50" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Monedas100" class="control-label"></label>
+							<input asp-for="Monedas100" class="form-control" />
+							<span asp-validation-for="Monedas100" class="text-danger"></span>
+						</div>
+						<div class="form-group">
+							<label asp-for="Monedas500" class="control-label"></label>
+							<input asp-for="Monedas500" class="form-control" />
+							<span asp-validation-for="Monedas500" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="form-group">
+					<label>Total Billetes:</label>
+					<input type="text" id="totalBilletes" class="form-control" readonly />
+				</div>
+				<div class="form-group">
+					<label>Total Monedas:</label>
+					<input type="text" id="totalMonedas" class="form-control" readonly />
+				</div>
+				<div class="form-group">
+					<label>Total General:</label>
+					<input type="text" id="totalGeneral" class="form-control" readonly />
+				</div>
+
+
+
+				<div class="form-group text-right">
+					<a asp-action="ObtenerTodosArqueos" class="btn btn-danger">Cancelar</a>
+					<input type="submit" value="Registrar" class="btn btn-all" />
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		// Función para calcular y actualizar las sumas
+		function calcularTotales() {
+			// Billetes
+			var billetes1000 = parseInt(document.getElementById('Billetes1000').value) || 0;
+			var billetes2000 = parseInt(document.getElementById('Billetes2000').value) || 0;
+			var billetes5000 = parseInt(document.getElementById('Billetes5000').value) || 0;
+			var billetes10000 = parseInt(document.getElementById('Billetes10000').value) || 0;
+			var billetes20000 = parseInt(document.getElementById('Billetes20000').value) || 0;
+
+			var totalBilletes = billetes1000 * 1000 +
+				billetes2000 * 2000 +
+				billetes5000 * 5000 +
+				billetes10000 * 10000 +
+				billetes20000 * 20000;
+
+			// Monedas
+			var monedas5 = parseInt(document.getElementById('Monedas5').value) || 0;
+			var monedas10 = parseInt(document.getElementById('Monedas10').value) || 0;
+			var monedas25 = parseInt(document.getElementById('Monedas25').value) || 0;
+			var monedas50 = parseInt(document.getElementById('Monedas50').value) || 0;
+			var monedas100 = parseInt(document.getElementById('Monedas100').value) || 0;
+			var monedas500 = parseInt(document.getElementById('Monedas500').value) || 0;
+
+			var totalMonedas = monedas5 * 5 +
+				monedas10 * 10 +
+				monedas25 * 25 +
+				monedas50 * 50 +
+				monedas100 * 100 +
+				monedas500 * 500;
+
+			// Total General
+			var totalGeneral = totalBilletes + totalMonedas;
+
+			// Actualizar los campos de resultados
+			document.getElementById('totalBilletes').value = totalBilletes.toFixed(2);
+			document.getElementById('totalMonedas').value = totalMonedas.toFixed(2);
+			document.getElementById('totalGeneral').value = totalGeneral.toFixed(2);
+		}
+
+		// Agregar event listeners a los campos para recalcular cuando cambien
+		document.getElementById('Billetes1000').addEventListener('input', calcularTotales);
+		document.getElementById('Billetes2000').addEventListener('input', calcularTotales);
+		document.getElementById('Billetes5000').addEventListener('input', calcularTotales);
+		document.getElementById('Billetes10000').addEventListener('input', calcularTotales);
+		document.getElementById('Billetes20000').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas5').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas10').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas25').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas50').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas100').addEventListener('input', calcularTotales);
+		document.getElementById('Monedas500').addEventListener('input', calcularTotales);
+	</script>
+}
+
+

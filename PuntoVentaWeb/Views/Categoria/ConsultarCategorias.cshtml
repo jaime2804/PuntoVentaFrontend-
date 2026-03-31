@@ -1,0 +1,97 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.CategoriaEnt>
+
+@{
+    ViewData["Title"] = "Consultar Categorías";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-white">Lista de Categorías</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <p>
+                        <a class="btn btn-all" href="@Url.Action("RegistrarCategoria", "Categoria")">
+                            <i class="fa fa-plus"></i> Nueva Categoría
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <thead class="thead">
+                            <tr class="table-head">
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Id)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Nombre)
+                                </th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="table-row">
+                                    <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                                    <td>
+                                        <a class="btn btn-success btn-sm" href="@Url.Action("ActualizarCategoria", "Categoria", new { id = item.Id })">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm passingID" data-toggle="modal" data-target="#deleteModal"
+                                                data-id="@item.Id" data-name="@item.Nombre">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Delete Confirmation -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @using (Html.BeginForm("EliminarCategoria", "Categoria", FormMethod.Post))
+                {
+                    <div class="modal-body">
+                        <input type="hidden" id="Id" name="Id" value="">
+                        <p id="DeleteQuestion" style="font-weight: bold;"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(".passingID").click(function () {
+            $("#Id").val($(this).data('id'));
+            $("#DeleteQuestion").text("¡Si la categoria tiene productos registrados no se eliminará! ¿Desea eliminar la categoría: " + $(this).data('name') + "?");
+        });
+    </script>
+}

@@ -1,0 +1,485 @@
+﻿@model PuntoVentaWeb.Entities.Carrito
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 ">
+                            <h6 class="m-0 font-weight-bold text-white">Cajero</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+
+                                <div class="form-inline ml-3">
+                                    @Context.Session.GetString("NOMBRE")!.ToString()
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <input type="text" class="form-control" id="txtDocumentoCliente" value="@Context.Session.GetString("IDENTIFICACION")" readonly hidden>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 ">
+                            <h6 class="m-0 font-weight-bold text-white">Productos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group col-sm-12">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" id="productIdInput" placeholder="Ingrese el ID del producto" autofocus oninput="autoSubmit()" />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="buscarProducto()">Buscar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="container mt-3">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Producto</th>
+                                                <th>Cantidad</th>
+                                                <th>Precio</th>
+                                                <th>Descuento (%)</th>
+                                                <th>Total</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model.Items)
+                                            {
+                                                <tr class="table-row">
+                                                    <td>@item.Producto.IdProducto</td>
+                                                    <td>@item.Producto.Nombre</td>
+                                                    <td>
+                                                        <div class="input-group input-group-sm">
+                                                            <div class="input-group-prepend">
+                                                                <form asp-action="AgregarProducto" method="get">
+                                                                    <input type="hidden" name="productoId" value="@item.Producto.IdProducto" />
+                                                                    <input type="hidden" name="cantidad" value="-1" />
+                                                                    <button class="btn btn-minus" type="submit" onclick="return validarCantidad(@item.Cantidad)">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                            <input id="valorCantidad" type="text" class="form-control text-center" value="@item.Cantidad" style="max-width: 3em;" readonly>
+                                                            <div class="input-group-append">
+                                                                <form asp-action="AgregarProducto" method="get">
+                                                                    <input type="hidden" name="productoId" value="@item.Producto.IdProducto" />
+                                                                    <input type="hidden" name="cantidad" value="1" />
+                                                                    <button class="btn btn-plus" type="submit">
+                                                                        <i class="fas fa-plus"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>@item.Producto.Precio</td>
+                                                    <td>
+                                                        <input type="number" class="form-control form-control-sm"
+                                                               id="descuento_@item.Producto.IdProducto" value="0"
+                                                               min="0" max="100" step="1"
+                                                               oninput="validarNumero(this)"
+                                                               onchange="actualizarDescuento('@item.Producto.IdProducto')">
+
+                                                    </td>
+                                                    <td id="total_@item.Producto.IdProducto" data-cantidad="@item.Cantidad" data-precio="@item.Producto.Precio">
+                                                        @((item.Producto.Precio * item.Cantidad) - (item.Producto.Precio * (item.Cantidad * 0 / 100)))
+                                                    </td>
+                                                    <td>
+                                                        <form asp-action="EliminarProducto" method="post">
+                                                            <input type="hidden" name="productoId" value="@item.Producto.IdProducto" />
+                                                            <button type="submit" class="btn btn-exit btn-sm">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <form asp-controller="Carrito" asp-action="VaciarCarrito" method="post">
+                                    <button type="submit" class="btn btn-exit btn-sm">
+                                        Vaciar Carrito
+                                    </button>
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-4">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 ">
+                            <h6 class="m-0 font-weight-bold text-white">Detalle de Factura</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupSubTotal">Sub Total</span>
+                                </div>
+                                <input type="text" class="form-control text-right" aria-label="Small" aria-describedby="inputGroupSubTotal" id="txtSubTotal" value="@Model.Subtotal" disabled>
+                            </div>
+
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupIGV">IVA(13%)</span>
+                                </div>
+                                <input type="text" class="form-control text-right" aria-label="Small" aria-describedby="inputGroupIGV" id="txtIGV" value="@Model.IVA" disabled>
+                            </div>
+
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupTotal">Total</span>
+                                </div>
+                                <input type="text" class="form-control text-right" aria-label="Small" aria-describedby="inputGroupTotal" id="txtTotal" value="@Model.Total" disabled>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupTipoPago">TipoPago</span>
+                                </div>
+                                
+                                <select class="form-select" aria-label="Default select example" aria-describedby="inputGroupTipoPago" id="txtTipoPago">
+                                    <option selected>Tipo de pago</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                    <option value="SINPE">SINPE</option>
+                                </select>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupCambio">Cambio</span>
+                                </div>
+                                <input type="text" class="form-control text-right" aria-label="Small" aria-describedby="inputGroupCambio" id="txtCambio" value="" disabled>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="inputGroupPago">Pago</span>
+                                </div>
+                                <input type="text" class="form-control text-right" aria-label="Small" aria-describedby="inputGroupPago" id="txtPago">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="form-group mb-0">
+                                <button class="btn btn-all btn-sm btn-block" id="btnTerminarVenta">Terminar Venta</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalFactura" tabindex="-1" aria-labelledby="modalFacturaLabel" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFacturaLabel">Detalles de la Factura</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Datos del Cliente</h6>
+                    <p id="modalDocumentoCliente"></p>
+
+                    <h6>Productos</h6>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalItemsBody">
+                            <!-- Los datos de los productos se insertarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+
+                    <h6>Totales</h6>
+                    <p>Sub Total: <span id="modalSubTotal"></span></p>
+                    <p>IVA: <span id="modalIVA"></span></p>
+                    <p>Total: <span id="modalTotal"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cerrarModal" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarVenta">Confirmar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+<form id="ventaForm" method="post" action="@Url.Action("TerminarVenta", "Factura")" style="display: none;">
+    <input type="hidden" name="itemsJson" id="hiddenItemsJson" />
+    <input type="hidden" name="documentoCliente" id="hiddenDocumentoCliente" />
+</form>
+
+
+
+
+<!-- Bootstrap core JavaScript-->
+<script src="~/vendor/jquery/jquery.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages-->
+<script src="~/js/sb-admin-2.js"></script>
+
+<!-- ============================================================
+=SCRIPTS PARA ESTA PAGINA
+===============================================================-->
+<script src="~/vendor/select2/select2.min.js"></script>
+<script src="~/vendor/select2/es.min.js"></script>
+
+
+
+<script>
+    function validarNumero(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+    }
+
+
+    function autoSubmit() {
+        var input = document.getElementById('productIdInput');
+
+        // Usamos un temporizador para detectar cuándo se detiene la entrada de texto
+        clearTimeout(input.dataset.timer);
+
+        // Configura un temporizador para esperar unos milisegundos después de que se deja de escribir
+        input.dataset.timer = setTimeout(function () {
+            if (input.value.trim() !== "") {
+                buscarProducto();
+            }
+        }, 200); // Espera 200 ms después de la última entrada
+    }
+
+    function buscarProducto() {
+        var productId = document.getElementById('productIdInput').value;
+        if (productId.trim() !== "") {
+            window.location.href = '@Url.Action("AgregarProducto", "Carrito")?productoId=' + productId + '&cantidad=1';
+        }
+    }
+
+    document.getElementById('txtTipoPago').addEventListener('change', function () {
+        var tipoPago = this.value;
+        var txtTotal = parseFloat(document.getElementById('txtTotal').value);
+
+        if (tipoPago === 'SINPE' || tipoPago === 'Tarjeta') {
+            document.getElementById('txtPago').value = txtTotal;
+            document.getElementById('txtPago').disabled = true;
+        } else if (tipoPago === 'Efectivo') {
+            document.getElementById('txtPago').value = "0";
+            document.getElementById('txtPago').disabled = false;
+        } 
+    });
+
+    function actualizarDescuento(productoId) {
+        var descuento = document.getElementById('descuento_' + productoId).value;
+        var cantidad = parseInt(document.querySelector('#total_' + productoId).dataset.cantidad);
+        var precio = parseFloat(document.querySelector('#total_' + productoId).dataset.precio);
+
+        var total = (precio * cantidad) - (((precio * cantidad) * descuento) / 100);
+        document.getElementById('total_' + productoId).innerText = total.toFixed(2);
+        actualizarTotales();
+    }
+
+    function actualizarTotales() {
+        var subtotales = document.querySelectorAll('[id^="total_"]');
+        var subtotal = 0;
+
+        subtotales.forEach(function (subtotalElement) {
+            subtotal += parseFloat(subtotalElement.innerText);
+        });
+
+        var iva = subtotal * 0.13;
+        var total = subtotal + iva;
+
+        document.getElementById('txtSubTotal').value = subtotal.toFixed(2);
+        document.getElementById('txtIGV').value = iva.toFixed(2);
+        document.getElementById('txtTotal').value = total.toFixed(2);
+    }
+
+    function validarCantidad(cantidad) {
+        if (cantidad <= 1) {
+            return false;
+        }
+        return true;
+    }
+
+    function calcularCambio() {
+        var total = parseFloat(document.getElementById('txtTotal').value);
+        var pago = parseFloat(document.getElementById('txtPago').value);
+        var cambio = pago - total;
+        document.getElementById('txtCambio').value = cambio.toFixed(2);
+    }
+
+    document.getElementById('txtPago').addEventListener('input', calcularCambio);
+
+    document.getElementById('btnTerminarVenta').addEventListener('click', function () {
+        var items = [];
+        var subTotal = 0;
+        var iva = 0;
+        var total = 0;
+
+        var confirmar = 1;
+
+        document.querySelectorAll('tbody tr').forEach(function (row) {
+            var id = row.querySelector('td:nth-child(1)').innerText.trim();
+            var nombre = row.querySelector('td:nth-child(2)').innerText.trim();
+            var cantidad = row.querySelector('td:nth-child(3) input[type="text"]').value.trim();
+            var precio = row.querySelector('td:nth-child(4)').innerText.trim();
+            var descuento = row.querySelector('td:nth-child(5) input').value.trim();
+            var totalItem = parseFloat(row.querySelector('td:nth-child(6)').innerText.trim());
+            var tipoPago = document.getElementById('txtTipoPago').value;
+            var pago = parseFloat(document.getElementById('txtPago').value);
+
+            if (pago < totalItem) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Pago insuficiente',
+                    text: 'El pago es inferior al total de la venta',
+                    confirmButtonText: 'Aceptar'
+                });
+                confirmar = 0;
+                return; 
+            }
+            console.log(precio);
+         
+        
+            if (tipoPago === 'Tipo de pago') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se ha seleccionado Tipo de Pago',
+                    text: 'Seleccione un tipo de pago',
+                    confirmButtonText: 'Aceptar'
+                });
+                confirmar = 0;
+                return;
+
+            }
+           
+            items.push({
+                ProductoId: id,
+                NombreProducto: nombre,
+                Cantidad: parseInt(cantidad, 10),
+                Precio: parseFloat(precio),
+                Descuento: parseFloat(descuento),
+                Total: totalItem,
+                TipoPago: tipoPago,
+                Pago: pago
+            });
+
+            subTotal += totalItem;
+        });
+
+        if (confirmar == 1) {
+            iva = subTotal * 0.13;
+            total = subTotal + iva;
+
+
+            
+            var documentoCliente = document.getElementById('txtDocumentoCliente').value.trim();
+            document.getElementById('hiddenDocumentoCliente').value = documentoCliente;
+            document.getElementById('hiddenItemsJson').value = JSON.stringify(items);
+            document.getElementById('modalDocumentoCliente').innerText = documentoCliente;
+
+            var modalItemsBody = document.getElementById('modalItemsBody');
+            modalItemsBody.innerHTML = '';
+            items.forEach(function (item) {
+                var row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${item.ProductoId}</td>
+                <td>${item.NombreProducto}</td>
+                <td>${item.Cantidad}</td>
+                <td>${item.Precio.toFixed(2)}</td>
+                <td>${item.Total.toFixed(2)}</td>
+            `;
+                modalItemsBody.appendChild(row);
+            });
+
+            document.getElementById('modalSubTotal').innerText = subTotal.toFixed(2);
+            document.getElementById('modalIVA').innerText = iva.toFixed(2);
+            document.getElementById('modalTotal').innerText = total.toFixed(2);
+
+            // Mostrar el modal
+            var myModal = new bootstrap.Modal(document.getElementById('modalFactura'));
+            myModal.show();
+
+            document.getElementById('confirmarVenta').addEventListener('click', function () {
+               
+                fetch('@Url.Action("VaciarCarrito", "Carrito")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Error al vaciar el carrito.");
+                        }
+                  
+                        document.getElementById('ventaForm').submit();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Hubo un problema al intentar vaciar el carrito. Inténtalo de nuevo.',
+                            confirmButtonText: 'Aceptar'
+                        });
+                    });
+            });
+
+        }
+
+    });
+    
+
+    $(document).ready(function () {
+
+        $('#modalFactura').on('hidden.bs.modal', function () {
+            location.reload(); 
+        });
+    });
+
+
+</script>
+

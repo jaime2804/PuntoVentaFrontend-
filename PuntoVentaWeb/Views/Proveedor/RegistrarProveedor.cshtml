@@ -1,0 +1,163 @@
+﻿@model PuntoVentaWeb.Entities.ProveedorEnt
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Modal para Registrar Proveedor -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalRegistrarProveedorLabel">Registrar Proveedor</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formRegistrarProveedor" asp-action="RegistrarProveedor" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="NumeroDocumento" class="control-label"></label>
+                    <input asp-for="NumeroDocumento" class="form-control"
+                           inputmode="numeric" pattern="[0-9]*" />
+                    <span asp-validation-for="NumeroDocumento" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Correo" class="control-label"></label>
+                    <input asp-for="Correo" class="form-control" type="email" required />
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Direccion" class="control-label"></label>
+                    <input asp-for="Direccion" class="form-control" />
+                    <span asp-validation-for="Direccion" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Telefono" class="control-label"></label>
+                    <input asp-for="Telefono" class="form-control"
+                           inputmode="numeric" pattern="\d{8,}" required
+                           title="El teléfono debe contener solo números y al menos 8 dígitos."
+                           maxlength="15" id="telefono" />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="Impuesto" class="control-label"></label>
+                    <input asp-for="Impuesto" class="form-control"
+                           inputmode="numeric" pattern="[0-9]*" step="0.01" min="0" max="100" />
+                    <span asp-validation-for="Impuesto" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarProveedores" class="btn btn-secondary">Cancelar</a>
+                    <button type="button" class="btn btn-primary" id="btnRegistrarProveedor">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById('telefono').addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnRegistrar = document.getElementById('btnRegistrarProveedor');
+            const formRegistrar = document.getElementById('formRegistrarProveedor');
+            const correoField = document.querySelector('[name="Correo"]');
+
+            // Evento al hacer clic en el botón de registro
+            btnRegistrar.addEventListener('click', function (e) {
+                e.preventDefault(); // Evita el envío inmediato del formulario
+
+                const numeroDocumento = document.querySelector('[name="NumeroDocumento"]').value.trim();
+                const nombre = document.querySelector('[name="Nombre"]').value.trim();
+                const correo = correoField.value.trim();
+                const impuesto = parseFloat(document.querySelector('[name="Impuesto"]').value);
+
+                // Validación de campos requeridos
+                if (!numeroDocumento || !nombre || !correo) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Campos requeridos',
+                        text: 'Por favor, complete los campos de documento, nombre y correo.',
+                    });
+                    return;
+                }
+
+                // Validación del correo
+                if (!correoField.checkValidity()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Correo inválido',
+                        text: 'Por favor, ingrese un correo válido.',
+                    });
+                    return;
+                }
+
+                // Validación del impuesto
+                if (isNaN(impuesto) || impuesto < 0 || impuesto > 100) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Valor de impuesto inválido',
+                        text: 'El impuesto debe estar entre 0 y 100.',
+                    });
+                    return;
+                }
+
+                // Si todo es válido, se procede a la petición AJAX
+                $.ajax({
+                    url: formRegistrar.action, // Usa la acción definida en el formulario
+                    type: 'POST',
+                    data: $(formRegistrar).serialize(), // Serializa los datos del formulario
+                    dataType: 'json', // Espera respuesta JSON
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: response.message,
+                                confirmButtonText: 'Aceptar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = '/Proveedor/ConsultarProveedores'; // Redirige si todo va bien
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                confirmButtonText: 'Aceptar'
+                            });
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error del servidor',
+                            text: `Hubo un problema: ${textStatus} - ${errorThrown}`,
+                            confirmButtonText: 'Aceptar'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+}

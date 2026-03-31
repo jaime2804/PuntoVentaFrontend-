@@ -1,0 +1,96 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.FacturaEnt>
+
+@{
+    ViewData["Title"] = "Consultar Facturas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-white">Lista de Facturas</h6>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <input type="text" id="searchId" class="form-control" placeholder="Buscar por ID de Factura" onkeyup="filterTable()" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered" id="facturaTable">
+                        <thead class="thead">
+                            <tr class="table-head">
+                                <th>@Html.DisplayNameFor(model => model.First().IdFactura)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().NombreProducto)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().PrecioUnitario)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Cantidad)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Descuento)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().TotalDetalle)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Fecha)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().SubTotal)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().IVA)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().TotalFactura)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Pago)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().Cambio)</th>
+                                <th>@Html.DisplayNameFor(model => model.First().TipoPago)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="table-row">
+                                    <td>@Html.DisplayFor(modelItem => item.IdFactura)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.NombreProducto)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.PrecioUnitario)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Cantidad)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Descuento)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.TotalDetalle)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Fecha)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.SubTotal)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.IVA)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.TotalFactura)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Pago)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Cambio)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.TipoPago)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchId");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("facturaTable");
+        tr = table.getElementsByTagName("tr");
+
+        
+        if (filter === "") {
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "";
+            }
+            return;
+        }
+
+       
+        for (i = 1; i < tr.length; i++) { 
+            td = tr[i].getElementsByTagName("td")[0]; 
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().startsWith(filter)) { 
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>

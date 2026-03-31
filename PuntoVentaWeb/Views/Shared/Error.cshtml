@@ -1,0 +1,11 @@
+﻿@model PuntoVentaWeb.Models.ErrorViewModel
+
+<div class="text-danger">
+    <h1 class="display-4">Error.</h1>
+    <h2 class="lead">@Model.RequestId</h2>
+    @if (Model.ShowRequestId)
+    {
+        <p class="text-danger">Código de error: <code>@Model.RequestId</code></p>
+    }
+    <p class="text-danger">Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.</p>
+</div>

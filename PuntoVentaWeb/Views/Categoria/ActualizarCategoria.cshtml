@@ -1,0 +1,83 @@
+﻿@model PuntoVentaWeb.Entities.CategoriaEnt
+
+@{
+    ViewData["Title"] = "Actualizar Categoría";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalActualizarCategoriaLabel">Actualizar Categoría</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formActualizarCategoria" asp-action="ActualizarCategoria" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Id" class="control-label"></label>
+                    <input asp-for="Id" class="form-control" readonly />
+                    <span asp-validation-for="Id" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarCategorias" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Actualizar" class="btn btn-primary" id="btnActualizarCategoria" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.getElementById('btnActualizarCategoria').addEventListener('click', function (e) {
+            e.preventDefault(); // Evita el envío inmediato del formulario
+
+            const nombreCategoria = document.querySelector('[name="Nombre"]').value.trim();
+
+            if (nombreCategoria === '') {
+                // Mostrar alerta de error si el campo está vacío
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campo requerido',
+                    text: 'El nombre de la categoría no puede estar vacío.',
+                });
+            } else {
+                fetch(`@Url.Action("ExisteCategoria", "Categoria")?nombre=${nombreCategoria}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existe) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'La categoría ya existe.',
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Registro exitoso',
+                                text: 'La categoría se ha registrado correctamente.',
+                            }).then(() => {
+                                document.getElementById('formCategoria').submit();
+                            });
+                        }
+                    });
+            }
+        });
+    </script>
+}

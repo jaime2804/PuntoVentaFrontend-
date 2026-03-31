@@ -1,0 +1,193 @@
+﻿@model PuntoVentaWeb.Entities.DashboardEnt
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<body>
+    <style>
+        /* Estilo para la imagen del logo */
+        .logo-image {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px; /* Espacio encima de la imagen */
+        }
+
+        /* Ajustar el diseño de las tarjetas */
+        .index-card {
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body-index {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Estilo para el contenedor de las columnas */
+        .dashboard-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .dashboard-content {
+            width: 75%;
+        }
+
+        .dashboard-logo {
+            width: 20%;
+            text-align: center;
+        }
+
+        /* Asegurar que los márgenes y rellenos se ajusten */
+        .dashboard-card {
+            margin-bottom: 20px;
+        }
+    </style>
+
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Page Heading -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        </div>
+
+        <!-- Content Row -->
+        <div class="dashboard-container">
+            <!-- Contenedor de los datos principales -->
+            <div class="dashboard-content">
+                <div class="row mb-4">
+                    <!-- Total de ventas -->
+                    <div class="col-xl-12 col-md-12 mb-4 dashboard-card">
+                        <div class="card h-100 py-2 index-card">
+                            <div class="card-body card-body-index">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Ventas</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalVenta">@Model.TotalVentas</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-shopping-basket fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total de Ingresos -->
+                    <div class="col-xl-12 col-md-12 mb-4 dashboard-card">
+                        <div class="card h-100 py-2 index-card">
+                            <div class="card-body card-body-index">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Ingresos</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalIngresos">
+                                            @Model.IngresosTotales.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-dollar-sign fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total de Productos -->
+                    <div class="col-xl-12 col-md-12 mb-4 dashboard-card">
+                        <div class="card h-100 py-2 index-card">
+                            <div class="card-body card-body-index">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Productos</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalProductos">@Model.TotalProductos</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total de Categorías -->
+                    <div class="col-xl-12 col-md-12 mb-4 dashboard-card">
+                        <div class="card h-100 py-2 index-card">
+                            <div class="card-body card-body-index">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Categorías</div>
+                                        <div class="h5 mb-0 font-weight-bold" id="totalCategorias">@Model.TotalCategorias</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-tags fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Productos Más Vendidos -->
+                    <div class="col-xl-12 col-md-12 mb-4 dashboard-card">
+                        <div class="card h-100 py-2 index-card">
+                            <div class="card-body card-body-index">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-3">
+                                        <h5 class="text-lg font-weight-bold text-uppercase mb-4">Productos Más Vendidos</h5>
+                                        <ul class="list-unstyled mb-0">
+                                            @if (Model.ProductosMasVendidos != null && Model.ProductosMasVendidos.Any())
+                                            {
+                                                foreach (var producto in Model.ProductosMasVendidos)
+                                                {
+                                                    <li class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="font-weight-bold text-lg">@producto</span>
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <li class="text-muted">No hay productos más vendidos disponibles.</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="col-auto">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           
+
+    </div>
+    <!-- /.container-fluid -->
+    <!-- End of Main Content -->
+    <!-- Footer -->
+    <!-- End of Footer -->
+</body>
+<!-- End of Page Wrapper -->
+<!-- Bootstrap core JavaScript -->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript -->
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+<!-- Custom scripts for all pages -->
+<script src="js/sb-admin-2.js"></script>
+
+<!-- ============================================================
+=SCRIPTS PARA ESTA PAGINA
+===============================================================-->
+<script src="vendor/chart.js/Chart.min.js"></script>
+
+<!-- SOLO ES DE EJEMPLO - IGNORAR -->
+<script src="js/vistas/chart-bar-demo.js"></script>
+<script src="js/vistas/chart-pie-demo.js"></script>
+
+</html>

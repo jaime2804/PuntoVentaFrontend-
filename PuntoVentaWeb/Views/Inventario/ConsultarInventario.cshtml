@@ -1,0 +1,90 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.InventarioEnt>
+
+@{
+    ViewData["Title"] = "ConsultarInventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-white">Inventario</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <p>
+                        <a class="btn btn-all" href="@Url.Action("RegistrarProducto", "Producto")">
+                            <i class="fa fa-plus"></i> Nuevo Producto
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <thead class="thead">
+                            <tr class="table-head">
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().IdInventario)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().IdProducto)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Nombre)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Precio)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Stock)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().IdCategoria)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().FechaIngreso)
+                                </th>
+                                <th>Estado de Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="table-row @(item.Stock < 10 ? "table-danger" : "")">
+                                    <td>@Html.DisplayFor(modelItem => item.IdInventario)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.IdProducto)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Precio)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Stock)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.IdCategoria)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.FechaIngreso)</td>
+                                    <td>
+                                        @if (item.Stock < 10)
+                                        {
+                                            <span class="text-danger">Stock Bajo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success">Stock Suficiente</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-danger {
+        background-color: #f8d7da;
+    }
+</style>

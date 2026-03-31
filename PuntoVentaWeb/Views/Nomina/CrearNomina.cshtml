@@ -1,0 +1,91 @@
+﻿@model PuntoVentaWeb.Entities.NominaEnt
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Modal para Crear Nomina -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalCrearNominaLabel">Crear Nómina</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formCrearNomina" asp-action="CrearNomina">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Cedula" class="control-label"></label>
+                    <input asp-for="Cedula" class="form-control" readonly />
+                    <span asp-validation-for="Cedula" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" readonly />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Apellido" class="control-label"></label>
+                    <input asp-for="Apellido" class="form-control" readonly />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Vacaciones" class="control-label"></label>
+                    <input asp-for="Vacaciones" class="form-control" />
+                    <span asp-validation-for="Vacaciones" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Horas" class="control-label"></label>
+                    <input asp-for="Horas" class="form-control" />
+                    <span asp-validation-for="Horas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a href="@Url.Action("ConsultarEmpleados", "Empleado")" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Crear" class="btn btn-primary" id="btnCrearNomina" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        document.getElementById('btnCrearNomina').addEventListener('click', function (e) {
+            e.preventDefault(); // Evita el envío inmediato del formulario
+
+            const cedula = document.querySelector('[name="Cedula"]').value.trim();
+            const nombre = document.querySelector('[name="Nombre"]').value.trim();
+            const apellido = document.querySelector('[name="Apellido"]').value.trim();
+            const vacaciones = document.querySelector('[name="Vacaciones"]').value.trim();
+            const horas = document.querySelector('[name="Horas"]').value.trim();
+
+            // Verificar si todos los campos están completos
+            if (!cedula || !nombre || !apellido || !vacaciones || !horas) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campos requeridos',
+                    text: 'Por favor, complete todos los campos obligatorios.',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Nómina creada',
+                    text: 'La nómina se ha creado exitosamente.',
+                }).then(() => {
+                    document.getElementById('formCrearNomina').submit(); // Enviar el formulario
+                });
+            }
+        });
+    </script>
+}

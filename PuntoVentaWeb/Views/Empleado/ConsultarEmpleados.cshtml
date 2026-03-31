@@ -1,0 +1,125 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.EmpleadoEnt>
+
+@{
+    ViewData["Title"] = "Consultar Empleados";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 ">
+            <h6 class="m-0 font-weight-bold text-white">Lista de Empleados</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-6 d-flex align-items-center">
+                    <a class="btn btn-all mr-2" href="@Url.Action("RegistrarEmpleado", "Empleado")">
+                        <i class="fa fa-plus"></i> Nuevo Empleado
+                    </a>
+                    <a class="btn btn-all mr-2" href="@Url.Action("ExportarNominas", "Nomina")">
+                        <i class="fas fa-file-excel"></i> Exportar a Excel
+                    </a>
+                </div>
+            </div>
+
+            <hr />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <thead class="thead">
+                            <tr class="table-head">
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Cedula)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Nombre)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().Apellido)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().FechaIngreso)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().HorasTrabajadas)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().HorasRebajadas)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().ValorPorHora)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.First().SalarioAjustado)
+                                </th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr class="table-row">
+                                    <td>@Html.DisplayFor(modelItem => item.Cedula)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Apellido)</td>
+                                    <td>@item.FechaIngreso.ToString("dd/MM/yyyy")</td>
+                                    <td>@Html.DisplayFor(modelItem => item.HorasTrabajadas)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.HorasRebajadas)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.ValorPorHora)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.SalarioAjustado)</td>
+                                    <td>
+                                        <a class="btn btn-success btn-sm" href="@Url.Action("ActualizarEmpleado", "Empleado", new { Cedula = item.Cedula })" title="Editar">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-danger btn-sm passingID" data-toggle="modal" data-target="#exampleModal"
+                                                data-id="@item.Cedula" data-name="@item.Nombre" title="Eliminar">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                        <a class="btn btn-primary btn-sm" href="@Url.Action("CrearNomina", "Nomina", new { Cedula = item.Cedula })" title="Generar Nómina">
+                                            <i class="fas fa-file-alt"></i>
+                                        </a>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmación</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @using (Html.BeginForm("EliminarEmpleado", "Empleado", FormMethod.Post))
+                {
+                    <div class="modal-body">
+                        <input type="hidden" id="IdEmpleado" name="IdEmpleado" value="">
+                        <p id="Question" style="font-weight: bold;"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Procesar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(".passingID").click(function () {
+                $("#IdEmpleado").val($(this).data('id'));
+                $("#Question").text("¿Desea eliminar el empleado: " + $(this).data('name') + "?");
+            });
+        </script>
+    }

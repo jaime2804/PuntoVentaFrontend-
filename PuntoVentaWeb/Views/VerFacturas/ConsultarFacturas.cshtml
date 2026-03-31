@@ -1,0 +1,88 @@
+﻿@model IEnumerable<PuntoVentaWeb.Entities.VerFacturasEnt>
+
+@{
+    ViewData["Title"] = "Consultar Facturas";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-white">Consultar Facturas</h6>
+        </div>
+        <div class="card-body">
+            <!-- Formulario de búsqueda -->
+            <form asp-action="ConsultarFacturas" method="get">
+                <input type="hidden" name="busquedaRealizada" value="true" />
+                <div class="form-row align-items-end">
+                    <div class="form-group col-sm-3">
+                        <label for="FechaInicio">Fecha Inicio</label>
+                        <input type="date" class="form-control form-control-sm" id="FechaInicio" name="fechaInicio">
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="FechaFin">Fecha Fin</label>
+                        <input type="date" class="form-control form-control-sm" id="FechaFin" name="fechaFin">
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <button type="submit" class="btn btn-all btn-block btn-sm">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <hr />
+
+            <!-- Tabla de Facturas -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="tbdata" class="table table-sm table-striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th scope="col">Fecha Registro</th>
+                                <th scope="col">Numero Factura</th>
+                                <th scope="col">Sub Total</th>
+                                <th scope="col">IVA</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">ID Cajero</th>
+                                <th scope="col">Nombre Cajero</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Fecha</td>
+                                    <td>@item.IdFactura</td>
+                                    <td>@item.Subtotal</td>
+                                    <td>@item.IVA</td>
+                                    <td>@item.Total</td>
+                                    <td>@item.IdCajero</td>
+                                    <td>@item.NombreCajero</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if (ViewBag.ShowAlert != null && (bool)ViewBag.ShowAlert)
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Aviso',
+            text: '@ViewBag.MsjPantalla',
+            confirmButtonText: 'Aceptar'
+        });
+    </script>
+}
+

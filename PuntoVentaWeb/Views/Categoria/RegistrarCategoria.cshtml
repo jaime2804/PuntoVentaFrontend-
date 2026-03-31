@@ -1,0 +1,76 @@
+﻿@model PuntoVentaWeb.Entities.CategoriaEnt
+
+@{
+    ViewData["Title"] = "Registrar Categoría";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Modal para Registrar Categoría -->
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalRegistrarCategoriaLabel">Registrar Categoría</h5>
+        </div>
+        <div class="modal-body">
+            <form id="formCategoria" asp-action="RegistrarCategoria" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="control-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-right">
+                    <a asp-action="ConsultarCategorias" class="btn btn-secondary">Cancelar</a>
+                    <input type="submit" value="Registrar" class="btn btn-primary" id="btnRegistrarCategoria" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 CSS y JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+    <script>
+        document.getElementById('btnRegistrarCategoria').addEventListener('click', function (e) {
+            e.preventDefault(); 
+
+            const nombreCategoria = document.querySelector('[name="Nombre"]').value.trim();
+
+            if (nombreCategoria === '') {
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Campo requerido',
+                    text: 'El nombre de la categoría no puede estar vacío.',
+                });
+            } else {
+                
+                fetch(`@Url.Action("ExisteCategoria", "Categoria")?nombre=${nombreCategoria}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existe) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'La categoría ya existe.',
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Registro exitoso',
+                                text: 'La categoría se ha registrado correctamente.',
+                            }).then(() => {
+                                document.getElementById('formCategoria').submit(); 
+                            });
+                        }
+                    });
+            }
+        });
+    </script>
+}
